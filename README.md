@@ -1,2 +1,2 @@
 # IC
-Projetos implementos para a cadeira de Interação e Concorrência
+Projeto implementado para a cadeira de Interação e Concorrência
