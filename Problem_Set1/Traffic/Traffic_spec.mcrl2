@@ -1,0 +1,34 @@
+sort Color = struct green | yellow | yellowRed | red;
+
+map
+    next:Color -> Color;
+
+eqn
+    next(yellow) = red;
+    next(red) = yellowRed;
+    next(yellowRed) = green;
+    next(green) = yellow;
+
+act
+    toRed;
+    toGreen; 
+    toYellow; 
+    toYellowRed;
+    get,put, getLock, putLock;	
+	lock1, lock2, lock: Int;
+
+proc
+    Lighters(c:Color, priority: Int) =
+        (c == green) -> toYellow . Lighters(next(c), priority)
+       +(c == yellow) -> toRed . Lighters(next(c), priority)
+       +(c == red) -> toYellowRed  . Lighters(next(c), priority)
+       +(c == yellowRed) -> lock1(priority) . toGreen  . Lighters(next(c), priority);
+
+    Control(priority:Int) = 
+		 (priority == 0 || priority == 1) -> lock2(priority) . get . put . Control(priority+1)
+		+(priority == 2) -> lock2(priority) . get . put . Control(0); 
+
+init allow({getLock, putLock, toYellow, toYellowRed, lock},comm({lock1 | lock2 -> lock, toGreen |  get -> getLock, toRed | put -> putLock},
+ Lighters(yellowRed,0) || Lighters(red,1) || Lighters(red,2) || Control(0)));
+
+
